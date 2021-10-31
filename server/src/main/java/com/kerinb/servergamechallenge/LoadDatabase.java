@@ -15,7 +15,7 @@ public class LoadDatabase {
     CommandLineRunner initDatabase(PlayerRepository repository) {
 
         return args -> {
-            log.info("Preloading " + repository.save(new Player("Breandán Kerin")));
+            log.info("Preloading " + repository.save(new Player("admin_user")));
         };
     }
 }
