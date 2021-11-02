@@ -4,15 +4,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 public class ClientApplication {
-    private static String userName = "";
+    private static String userDisc = "";
     private static int playerID = 0;
 
     public static void main(String[] args) throws IOException, InterruptedException, JSONException {
@@ -23,37 +20,35 @@ public class ClientApplication {
         System.out.println("GAME STATUS: " + str_response);
 
         Scanner myObj = new Scanner(System.in);
-        System.out.println("Enter username");  // I wil need to do some sanitization here first, since enterin a new line breaks things
+        System.out.println("Enter username");  // I will need to do some sanitization here first, since enterin a new line breaks things
 
-        userName = myObj.nextLine();  // Read user input
-        System.out.println("Username is: " + userName);  // Output user input
-        postRequest("http://localhost:8090/registerNewPlayer", userName);
+        userDisc = myObj.nextLine();  // Read user input
+        System.out.println("Username is: " + userDisc);  // Output user input
+        postRequest("http://localhost:8090/registerNewPlayer", userDisc);
 
         System.out.println("UserID: " + playerID);
-        String gameStatus = getStringRequest("http://localhost:8090/gameStatus");
+        String gameStatus = getStringRequest("http://localhost:8090/getGameStatus");
         System.out.println("has game started?: " + gameStatus );
         while (!gameStatus.equals("GAME HAS BEGUN")) {
             Thread.sleep(1000);
-            gameStatus = getStringRequest("http://localhost:8090/gameStatus");
-            System.out.println("has game started?: " + gameStatus );
+            gameStatus = getStringRequest("http://localhost:8090/getGameStatus");
         }
 
         System.out.println("GAME STATUS: " + gameStatus);
-        getBoardRequest();
 
         while (gameStatus.equals("GAME HAS BEGUN")){
-            gameStatus = getStringRequest("http://localhost:8090/gameStatus");
+            gameStatus = getStringRequest("http://localhost:8090/getGameStatus");
             int playerTurn = Integer.parseInt(getStringRequest("http://localhost:8090/playerTurn"));
 
             if (playerTurn == playerID){
+                getBoardRequest();
                 System.out.println("Enter column (0-8) to make move\nTo exit the game enter 'EXIT'");
                 String move = myObj.nextLine();
                 System.out.println("User has entered: " + move); // sanitize inputs here
 
                 if (move.equals("EXIT")) {
                     System.out.println("PLAYER HAS LEFT THE GAME");
-                    postRequest("http://localhost:8090/gameStatus", "");
-                    // here I will need to update gaemstatus
+                    postRequest("http://localhost:8090/postGameStatus", String.valueOf(playerID));
                     break;
                 } else if (Integer.parseInt(move) >= 0 && Integer.parseInt(move) <= 8) {
                     System.out.println("PLAYER PLACES PIECE IN COLUMN: " + move);
@@ -66,36 +61,35 @@ public class ClientApplication {
             } else{
                 continue;
             }
-
             getBoardRequest();
         }
+        gameFinalOutput(gameStatus);
     }
 
-    private static String[][] stringToDeep(String inputString) {
-        int row = 9;
-        int col = 9;
-
-        // Define matrix
-        String[][] outputMatrix = new String[row][col];
-
-        // Parsing the input string so that you have
-        inputString = inputString.replaceAll("\\[", "").replaceAll("\\]", "");
-        System.out.println("input string: " + inputString);
-
-
-        List<String> splitString = Arrays.asList(inputString.split(", "));
-        System.out.println("split string: " + splitString);
-
-        int j = -1;
-        for (int i = 0; i < splitString.size(); i++) {
-            if (i % col == 0) {
-                j++;
-            }
-            outputMatrix[j][i % col] = splitString.get(i);
-            //System.out.println(s1[i] + "\t" + j + "\t" + i % col);
+    private static void gameFinalOutput(String gameStatus) {
+        if (gameStatus.equals("TIE")){
+            System.out.println("\n\n###################################");
+            System.out.println("########### ITS A TIE #############");
+            System.out.println("########### NO PLAYER #############");
+            System.out.println("###########  HAS WON  #############");
+            System.out.println("###################################\n\n");
+        } else if (gameStatus.contains("HAS WON")){
+            String winner = String.valueOf(gameStatus.charAt(7));
+            System.out.println("\n\n###################################");
+            System.out.println("######## CONGRATULATIONS ##########");
+            System.out.println("########     PLAYER " + winner + "    ##########");
+            System.out.println("########     HAS WON     ##########");
+            System.out.println("###################################\n\n");
+        } else if (gameStatus.contains("QUIT")){
+            String left = String.valueOf(gameStatus.charAt(7));
+            System.out.println("\n\n###################################");
+            System.out.println("########     PLAYER " + left + "    ##########");
+            System.out.println("########     HAS LEFT    ##########");
+            System.out.println("########     THE GAME    ###########");
+            System.out.println("###################################\n\n");
         }
-        return outputMatrix;
     }
+
 
     private static void getBoardRequest() throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8090/boardStatus").openConnection();
@@ -174,7 +168,7 @@ public class ClientApplication {
         if (responseCode == HttpURLConnection.HTTP_OK) { // success
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine;
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
 
             while ((inputLine = in .readLine()) != null) {
                 response.append(inputLine);

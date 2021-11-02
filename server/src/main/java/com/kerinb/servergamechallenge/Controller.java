@@ -46,13 +46,9 @@ public class Controller {
 
     @PostMapping("/makeMove")
     public void  makeMove(@RequestBody String params) {
-        System.out.println(params);
         String[] splitParams = params.replaceAll("=", "").split("%2C");
-        System.out.println(splitParams[0]);
-        System.out.println(splitParams[1]);
         game.insertPiece(Integer.parseInt(splitParams[0]), splitParams[1]);
         game.setCurrMove(game.getCurrMove() + 1);
-        System.out.println("Curr Player: " + game.getCurrPlayer());
 
         if (game.getCurrPlayer() == 2){
             game.setCurrPlayer(game.getCurrPlayer() + 1);
@@ -60,18 +56,15 @@ public class Controller {
             game.setCurrPlayer(game.getCurrPlayer() - 1);
         }
 
-        System.out.println("Curr Player: " + game.getCurrPlayer());
-        System.out.println("Curr Move: " + game.getCurrMove());
+        game.checkGameState();
     }
 
-    @GetMapping("/playersId/{id}")
-    Player getPlayerRecordById(@PathVariable Long id) throws Exception {
-
-        return repository.findById(id)
-                .orElseThrow(() -> new Exception("Player not found"));
+    @PostMapping("/postGameStatus")
+    public void postGameStatus(@RequestBody String playerId){
+        game.setGameState("PLAYER " + playerId.replaceAll("=", "") + " QUIT");
     }
 
-    @GetMapping("/gameStatus")
+    @GetMapping("/getGameStatus")
     String getGameStatus(){
 
         return game.getGameState();
