@@ -70,6 +70,12 @@ public class Controller {
         return game.getGameState();
     }
 
+    @GetMapping("/getPlayerCount")
+    long getPlayerCount(){
+
+        return repository.count();
+    }
+
     @GetMapping("/boardStatus")
     String[][] getCurrBoardState(){
 
