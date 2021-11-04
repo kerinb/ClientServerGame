@@ -1,10 +1,10 @@
 package com.kerinb.servergamechallenge;
 
-class game {
+class game extends Game {
 
     private static final int ROWS = 6;
     private static final int COLS = 9;
-    private final String[][] board = new String[ROWS][COLS];
+    private String[][] board = new String[ROWS][COLS];
     private int currPlayer = 2;
     private int move = 0;
     private String gameState = "WAITING FOR BOTH PLAYERS TO JOIN";
@@ -20,40 +20,41 @@ class game {
 
     public boolean countFive(int row, int delRow, int col, int delCol, String player){
         for (int i = 1; i < 5; i++) {
-            if (!board[row + delRow * i][col + delCol * i].equals(player)) return false;
+            if (!this.board[row + delRow * i][col + delCol * i].equals(player)) return false;
         }
         return true;  // There were 5 in a row!
     }
 
-    public void checkGameState(){
+    public String checkGameState(){
         int row;
         int col;
 
         for (row = 0; row < ROWS; row++) {
             for (col = 0; col < COLS; col++) {
-                String player = board[row][col];
+                String player = this.board[row][col];
                 if (!player.equals(" ")) {
                     if (row < ROWS-4)
-                        if (countFive(row, 1, col, 0, player)) this.gameState = "PLAYER " + player + " HAS WON";
+                        if (countFive(row, 1, col, 0, player)) return "PLAYER " + player + " HAS WON";
 
                     if (col < COLS-4) {
-                        if (countFive(row, 0, col, 1, player))  this.gameState = "PLAYER " + player + " HAS WON";
+                        if (countFive(row, 0, col, 1, player))  return "PLAYER " + player + " HAS WON";
 
                         if (row < ROWS-4) {
-                            if (countFive(row, 1, col, 1, player)) this.gameState = "PLAYER " + player + " HAS WON";
+                            if (countFive(row, 1, col, 1, player)) return "PLAYER " + player + " HAS WON";
                         }
                     }
 
                     if (col > 3 && row < ROWS-4) {
-                        if (countFive(row, 1, col, -1, player)) this.gameState = "PLAYER " + player + " HAS WON";
+                        if (countFive(row, 1, col, -1, player)) return "PLAYER " + player + " HAS WON";
                     }
                 }
             }
         }
 
         if (move == ROWS * COLS) {
-            this.gameState = "TIE";
+            return "TIE";
         }
+        return this.gameState;
     }
 
     public void insertPiece(int col, String playerId){
@@ -94,5 +95,9 @@ class game {
 
     public void setCurrMove(int move){
         this.move = move;
+    }
+
+    public void setBoard(String[][] testBoard){
+        this.board = testBoard;
     }
 }

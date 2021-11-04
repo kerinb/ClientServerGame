@@ -13,7 +13,7 @@ public class ClientApplication {
     private static int playerID = 0;
 
     public static void main(String[] args) throws IOException, InterruptedException, JSONException {
-        String introString = getStringRequest("http://localhost:8090/");
+        String introString = getStringRequest("http://localhost:8080/");
         System.out.println(introString);
 
         Scanner myObj = new Scanner(System.in);
@@ -21,57 +21,62 @@ public class ClientApplication {
 
         playerName = myObj.nextLine();  // Read user input
         System.out.println("Username is: " + playerName);  // Output user input
-        long playerCount = Long.parseLong(getStringRequest("http://localhost:8090/getPlayerCount/"));
-        System.out.println("player count: " + playerCount);
+        long playerCount = Long.parseLong(getStringRequest("http://localhost:8080/getPlayerCount/"));
+
         if (playerCount+1 > 3){
+            System.out.println("TOO MANY PLAYERS HAVE REQUESTED TO PLAY - NO MORE PLAYERS CAN JOIN");
             return;
         } else {
-            postRequest("http://localhost:8090/registerNewPlayer", playerName);
-
-            System.out.println("UserID: " + playerID);
-            String gameStatus = getStringRequest("http://localhost:8090/getGameStatus");
-            System.out.println("has game started?: " + gameStatus );
-
-            if (gameStatus.equals("ERROR: TO MANY PLAYERS IN GAME")){
-                return;
-            }
-
-            while (!gameStatus.equals("GAME HAS BEGUN")) {
-                Thread.sleep(1000);
-                gameStatus = getStringRequest("http://localhost:8090/getGameStatus");
-            }
-
-            System.out.println("GAME STATUS: " + gameStatus);
-
-            while (gameStatus.equals("GAME HAS BEGUN")){
-                gameStatus = getStringRequest("http://localhost:8090/getGameStatus");
-                int playerTurn = Integer.parseInt(getStringRequest("http://localhost:8090/playerTurn"));
-
-                if (playerTurn == playerID){
-                    getBoardRequest();
-                    System.out.println("Enter column (0-8) to make move\nTo exit the game enter 'EXIT'");
-                    String move = myObj.nextLine();
-                    System.out.println("User has entered: " + move); // sanitize inputs here
-
-                    if (move.equals("EXIT")) {
-                        System.out.println("PLAYER HAS LEFT THE GAME");
-                        postRequest("http://localhost:8090/postGameStatus", String.valueOf(playerID));
-                        break;
-                    } else if (Integer.parseInt(move) >= 0 && Integer.parseInt(move) <= 8) {
-                        System.out.println("PLAYER PLACES PIECE IN COLUMN: " + move);
-                        String params = String.valueOf(move) + "," + String.valueOf(playerID);
-                        System.out.println(params);
-                        postRequest("http://localhost:8090/makeMove",params);
-                    } else {
-                        System.out.println("INVALID ENTRY...");
-                    }
-                } else{
-                    continue;
-                }
-                getBoardRequest();
-            }
-            gameFinalOutput(gameStatus);
+            playGame(myObj);
         }
+    }
+
+    private static void playGame(Scanner myObj) throws IOException, JSONException, InterruptedException {
+        postRequest("http://localhost:8080/registerNewPlayer", playerName);
+
+        System.out.println("UserID: " + playerID);
+        String gameStatus = getStringRequest("http://localhost:8080/getGameStatus");
+        System.out.println("has game started?: " + gameStatus );
+
+        if (gameStatus.equals("ERROR: TO MANY PLAYERS IN GAME")){
+            return;
+        }
+
+        while (!gameStatus.equals("GAME HAS BEGUN")) {
+            Thread.sleep(1000);
+            gameStatus = getStringRequest("http://localhost:8080/getGameStatus");
+        }
+
+        System.out.println("GAME STATUS: " + gameStatus);
+
+        while (gameStatus.equals("GAME HAS BEGUN")){
+            gameStatus = getStringRequest("http://localhost:8080/getGameStatus");
+            int playerTurn = Integer.parseInt(getStringRequest("http://localhost:8080/playerTurn"));
+
+            if (playerTurn == playerID){
+                getBoardRequest();
+                System.out.println("Enter column (0-8) to make move\nTo exit the game enter 'EXIT'");
+                String move = myObj.nextLine();
+                System.out.println("User has entered: " + move); // sanitize inputs here
+
+                if (move.equals("EXIT")) {
+                    System.out.println("PLAYER HAS LEFT THE GAME");
+                    postRequest("http://localhost:8080/postGameStatus", String.valueOf(playerID));
+                    break;
+                } else if (Integer.parseInt(move) >= 0 && Integer.parseInt(move) <= 8) {
+                    System.out.println("PLAYER PLACES PIECE IN COLUMN: " + move);
+                    String params = String.valueOf(move) + "," + String.valueOf(playerID);
+                    System.out.println(params);
+                    postRequest("http://localhost:8080/makeMove",params);
+                } else {
+                    System.out.println("INVALID ENTRY...");
+                }
+            } else{
+                continue;
+            }
+            getBoardRequest();
+        }
+        gameFinalOutput(gameStatus);
     }
 
     private static void gameFinalOutput(String gameStatus) {
@@ -100,7 +105,7 @@ public class ClientApplication {
 
 
     private static void getBoardRequest() throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8090/boardStatus").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/boardStatus").openConnection();
         connection.setRequestMethod("GET");
 
         int responseCode = connection.getResponseCode();

@@ -16,7 +16,7 @@ public class Controller {
     @GetMapping("/")
     public String index() {
 
-        return "Welcome to 5 in a row! \n\n please register your player";
+        return "Welcome to 5 in a row! please register your player";
     }
 
 
@@ -56,10 +56,11 @@ public class Controller {
             game.setCurrPlayer(game.getCurrPlayer() - 1);
         }
 
-        game.checkGameState();
+        String gameState = game.checkGameState();
+        game.setGameState(gameState);
     }
 
-    @PostMapping("/postGameStatus")
+    @PostMapping("/postGameStatus") // CHAMNGE FOR WGHEN CLIENT QUIRS
     public void postGameStatus(@RequestBody String playerId){
         game.setGameState("PLAYER " + playerId.replaceAll("=", "") + " QUIT");
     }
