@@ -16,7 +16,7 @@ class gameTests {
                 {" ", " ", " ", " ", " ", " ", " ", " ", " "},
                 {"1", "1", "1", "1", "1", " ", " ", " ", " "}
         };
-        game game = new game();
+        Game game = new Game();
         game.setBoard(testBoard);
         String[][] currBoard = game.getCurrBoardState();
         assert(testBoard == currBoard);
@@ -33,7 +33,7 @@ class gameTests {
                 {" ", " ", " ", " ", " ", " ", " ", " ", " "},
                 {" ", " ", " ", " ", " ", " ", " ", " ", " "}
         };
-        game game = new game();
+        Game game = new Game();
         game.initialiseBoard();
 
         String[][] currBoard = game.getCurrBoardState();
@@ -43,7 +43,7 @@ class gameTests {
 
     @Test
     void testSetCurrPlayer(){
-        game game = new game();
+        Game game = new Game();
         game.setCurrPlayer(1);
         assert(1 == game.getCurrPlayer());
     }
@@ -51,14 +51,14 @@ class gameTests {
 
     @Test
     void testSetCurrMove(){
-        game game = new game();
+        Game game = new Game();
         game.setCurrMove(9);
         assert(9 == game.getCurrMove());
     }
 
     @Test
     void testSetGameState(){
-        game game = new game();
+        Game game = new Game();
         game.setGameState("GAME HAS BEGUN");
         assert("GAME HAS BEGUN".equals(game.getGameState()));
     }
@@ -74,7 +74,7 @@ class gameTests {
                 {" ", " ", " ", " ", " ", " ", " ", " ", " "},
                 {"1", " ", " ", " ", " ", " ", " ", " ", " "}};
 
-        game game = new game();
+        Game game = new Game();
         game.initialiseBoard();
         game.insertPiece(0, "1");
         String[][] currBoard = game.getCurrBoardState();
@@ -92,7 +92,7 @@ class gameTests {
                 {"3", "3", "3", "3", "3", " ", " ", " ", " "}
         };
 
-        game game = new game();
+        Game game = new Game();
         game.setGameState("GAME HAS BEGUN");
         game.setCurrPlayer(3);
         game.setCurrMove(10);
@@ -114,7 +114,7 @@ class gameTests {
                 {"3", "2", "3", "2", "3", " ", " ", " ", " "}
         };
 
-        game game = new game();
+        Game game = new Game();
         game.setGameState("GAME HAS BEGUN");
         game.setCurrPlayer(3);
         game.setCurrMove(10);
@@ -135,7 +135,7 @@ class gameTests {
                 {"2", "2", "3", "2", "3", " ", " ", " ", " "}
         };
 
-        game game = new game();
+        Game game = new Game();
         game.setGameState("GAME HAS BEGUN");
         game.setCurrPlayer(3);
         game.setCurrMove(10);
@@ -157,7 +157,7 @@ class gameTests {
                 {"3", "2", "3", "2", "3", " ", " ", " ", " "}
         };
 
-        game game = new game();
+        Game game = new Game();
         game.setGameState("GAME HAS BEGUN");
         game.setCurrPlayer(3);
         game.setCurrMove(10);
@@ -178,7 +178,7 @@ class gameTests {
                 {"3", "2", "3", "2", "3", "2", "3", "2", "3"}
         };
 
-        game game = new game();
+        Game game = new Game();
         game.setGameState("GAME HAS BEGUN");
         game.setCurrPlayer(3);
         game.setCurrMove(54);

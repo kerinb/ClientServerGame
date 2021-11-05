@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 public class Controller {
 
     private final PlayerRepository repository;
-    private com.kerinb.servergamechallenge.game game = new game();
+    private Game game = new Game();
 
     Controller(PlayerRepository repository) {
         this.repository = repository;

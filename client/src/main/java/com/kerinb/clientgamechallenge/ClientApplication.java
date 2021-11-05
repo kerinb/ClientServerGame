@@ -1,8 +1,5 @@
 package com.kerinb.clientgamechallenge;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -12,7 +9,7 @@ public class ClientApplication {
     private static String playerName = "";
     private static int playerID = 0;
 
-    public static void main(String[] args) throws IOException, InterruptedException, JSONException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         String introString = getStringRequest("http://localhost:8080/");
         System.out.println(introString);
 
@@ -31,7 +28,7 @@ public class ClientApplication {
         }
     }
 
-    private static void playGame(Scanner myObj) throws IOException, JSONException, InterruptedException {
+    private static void playGame(Scanner myObj) throws IOException, InterruptedException {
         postRequest("http://localhost:8080/registerNewPlayer", playerName);
 
         System.out.println("UserID: " + playerID);
@@ -63,14 +60,21 @@ public class ClientApplication {
                     System.out.println("PLAYER HAS LEFT THE GAME");
                     postRequest("http://localhost:8080/postGameStatus", String.valueOf(playerID));
                     break;
-                } else if (Integer.parseInt(move) >= 0 && Integer.parseInt(move) <= 8) {
-                    System.out.println("PLAYER PLACES PIECE IN COLUMN: " + move);
-                    String params = String.valueOf(move) + "," + String.valueOf(playerID);
-                    System.out.println(params);
-                    postRequest("http://localhost:8080/makeMove",params);
                 } else {
-                    System.out.println("INVALID ENTRY...");
+                    try{
+                        if (Integer.parseInt(move) >= 0 && Integer.parseInt(move) <= 8) {
+                            System.out.println("PLAYER PLACES PIECE IN COLUMN: " + move);
+                            String params = String.valueOf(move) + "," + String.valueOf(playerID);
+                            System.out.println(params);
+                            postRequest("http://localhost:8080/makeMove",params);
+                        } else {
+                            System.out.println("INVALID ENTRY...");
+                        }
+                    } catch (NumberFormatException e){
+                        System.out.println("INVALID ENTRY...");
+                    }
                 }
+
             } else{
                 continue;
             }
@@ -164,7 +168,7 @@ public class ClientApplication {
     }
 
 
-    private static void postRequest(String url, String post_params) throws IOException, JSONException {
+    private static void postRequest(String url, String post_params) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("POST");
 
@@ -189,8 +193,8 @@ public class ClientApplication {
 
             // print result
             if (url.contains("registerNewPlayer")){
-                JSONObject jsonResponse = new JSONObject(response.toString());
-                playerID = Integer.parseInt(jsonResponse.get("id").toString());
+                String[] responseList = response.toString().split(",");
+                playerID = Integer.parseInt(responseList[0].split(":")[1]);
             }
 //            System.out.println("POST RESPONSE" + response.toString());
         } else {
